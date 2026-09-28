@@ -6,6 +6,7 @@ module Verse
   module Sentry
     Config = Struct.new(
       :dsn,
+      :environment,
       :tracing,
       :traces_sample_rate,
       :profiles_sample_rate,
@@ -34,6 +35,9 @@ module Verse
         # Nil-tolerant: `dsn: <%= ENV["SENTRY_DSN"] %>` in config.yml yields
         # nil when the variable is unset, which must mean "disabled".
         field(:dsn, [String, NilClass]).default("")
+        # Nil-tolerant for the same reason: `environment: <%= ENV["SENTRY_ENVIRONMENT"] %>`
+        # yields nil when unset, and nil or empty falls back to APP_ENVIRONMENT.
+        field(:environment, [String, NilClass]).default(nil)
         field(:tracing, Symbol)
           .default(:none)
           .rule("must be one of #{TRACING_MODES.join(", ")}") { |v| TRACING_MODES.include?(v) }

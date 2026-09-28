@@ -58,6 +58,20 @@ RSpec.describe Verse::Sentry::Plugin do
       expect(Verse::Sentry.tracing_mode).to eq :none
     end
 
+    it "reports the configured environment instead of APP_ENVIRONMENT" do
+      make_plugin({ dsn: TEST_DSN, environment: "custom-env" }).on_init
+
+      expect(::Sentry.configuration.environment).to eq "custom-env"
+    end
+
+    it "falls back to APP_ENVIRONMENT when the environment is nil or blank" do
+      [nil, "", "  "].each do |environment|
+        make_plugin({ dsn: TEST_DSN, environment: }).on_init
+
+        expect(::Sentry.configuration.environment).to eq "spec-env"
+      end
+    end
+
     it "keeps the SDK instrumenter in :none and :native modes" do
       make_plugin({ dsn: TEST_DSN, tracing: :native, traces_sample_rate: 0.7 }).on_init
 
