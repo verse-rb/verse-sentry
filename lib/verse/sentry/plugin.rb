@@ -8,6 +8,7 @@ module Verse
     #     - plugin: sentry
     #       config:
     #         dsn: <%= ENV["SENTRY_DSN"] %>
+    #         environment: <%= ENV["SENTRY_ENVIRONMENT"] %> # default: APP_ENVIRONMENT
     #         tracing: otel   # none | native | otel
     #         traces_sample_rate: <%= ENV.fetch("SENTRY_TRACES_SAMPLE_RATE", 0.1) %>
     #
@@ -58,7 +59,7 @@ module Verse
 
         ::Sentry.init do |c|
           c.dsn = cfg.dsn
-          c.environment = ENV.fetch("APP_ENVIRONMENT", "development")
+          c.environment = environment
 
           c.breadcrumbs_logger = [:sentry_logger, :http_logger]
           c.send_default_pii = cfg.send_default_pii
@@ -84,6 +85,13 @@ module Verse
           # trigger the profiler).
           c.profiles_sample_rate = cfg.profiles_sample_rate if cfg.tracing != :none
         end
+      end
+
+      # Several installs can share a DSN, and the Verse environment names only
+      # which config files to load, so an install may report its own name.
+      def environment
+        name = @config.environment.to_s.strip
+        name.empty? ? ENV.fetch("APP_ENVIRONMENT", "development") : name
       end
 
       # Sentry Logs: mirror everything logged through Ruby's stdlib Logger

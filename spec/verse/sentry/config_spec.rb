@@ -11,6 +11,7 @@ RSpec.describe Verse::Sentry::Config do
 
       config = result.value
       expect(config.dsn).to eq ""
+      expect(config.environment).to be_nil
       expect(config.tracing).to eq :none
       expect(config.traces_sample_rate).to eq 0.1
       expect(config.profiles_sample_rate).to eq 0.0
@@ -27,6 +28,7 @@ RSpec.describe Verse::Sentry::Config do
     let(:input) do
       {
         dsn: TEST_DSN,
+        environment: "custom-env",
         tracing: :otel,
         traces_sample_rate: 0.5,
         excluded_exceptions: ["MyApp::Ignored"]
@@ -38,6 +40,7 @@ RSpec.describe Verse::Sentry::Config do
 
       config = result.value
       expect(config.dsn).to eq TEST_DSN
+      expect(config.environment).to eq "custom-env"
       expect(config.tracing).to eq :otel
       expect(config.traces_sample_rate).to eq 0.5
       expect(config.excluded_exceptions).to eq ["MyApp::Ignored"]

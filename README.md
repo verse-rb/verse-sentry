@@ -19,11 +19,14 @@ plugins:
   - plugin: sentry
     config:
       dsn: <%= ENV["SENTRY_DSN"] %>   # empty/missing DSN disables everything
+      environment: <%= ENV["SENTRY_ENVIRONMENT"] %>  # empty/missing: APP_ENVIRONMENT
       tracing: none                    # none | native | otel
       traces_sample_rate: <%= ENV.fetch("SENTRY_TRACES_SAMPLE_RATE", 0.1) %>
 ```
 
-The environment reported to Sentry comes from `APP_ENVIRONMENT`. Verse 4xx
+The environment reported to Sentry is `environment` when set, otherwise
+`APP_ENVIRONMENT`. Set it when several installs share a DSN, so each reports
+its own name. Verse 4xx
 business errors (NotFound, ValidationFailed, …) are excluded from issue
 creation by default; override with `excluded_exceptions`.
 
